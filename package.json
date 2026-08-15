@@ -1,0 +1,14 @@
+{
+  "name": "travelguide",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.9",
+    "dotenv": "^16.0.3"
+  }
+}

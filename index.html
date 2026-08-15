@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TravelGuide (local)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; padding: 24px; max-width: 720px; margin: 0 auto; }
+    input, select { padding: 6px }
+    button { padding: 8px 12px; margin-top: 8px; }
+    .result { white-space: pre-wrap; background: #f7f7fb; padding: 12px; border-radius: 6px }
+    .error { color: crimson }
+    label { display: block; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>TravelGuide (local) — Node.js</h1>
+  <form id="form">
+    <label>Location: <input id="location" placeholder="city, address, or landmark" style="width:300px" /></label>
+    <label>Weather provider:
+      <select id="provider">
+        <option value="openweathermap">OpenWeatherMap</option>
+        <option value="weatherapi">WeatherAPI.com</option>
+      </select>
+    </label>
+    <button id="go">Generate travel guide</button>
+  </form>
+
+  <div id="status" style="margin-top:12px"></div>
+
+  <section id="out" style="margin-top:18px; display:none">
+    <h2>Guide</h2>
+    <div id="guide" class="result"></div>
+
+    <h3 style="margin-top:18px">Weather (raw)</h3>
+    <pre id="weather" style="background:#fff;padding:12px;border-radius:6px"></pre>
+  </section>
+
+  <script src="/app.js"></script>
+</body>
+</html>

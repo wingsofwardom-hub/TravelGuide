@@ -94,6 +94,56 @@ function summarizeWeather(weather) {
 }
 
 async function callLLM(prompt) {
+  // LLM_PROVIDER picks which backend to call: 'gemini' (free tier) or 'anthropic'.
+  // Defaults to gemini if a GEMINI_API_KEY is present, otherwise anthropic.
+  const provider = (process.env.LLM_PROVIDER || (process.env.GEMINI_API_KEY ? 'gemini' : 'anthropic')).toLowerCase()
+
+  if (provider === 'gemini') return callGemini(prompt)
+  return callAnthropic(prompt)
+}
+
+async function callGemini(prompt) {
+  // Google's Gemini API - generateContent endpoint. Has a genuinely free tier
+  // (rate-limited, no billing required). Get a key at https://aistudio.google.com/apikey
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('GEMINI_API_KEY is not set')
+
+  // Check https://ai.google.dev/gemini-api/docs/models for the current free-tier
+  // model list before relying on this default - names change over time.
+  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash'
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`
+
+  const body = {
+    contents: [
+      { role: 'user', parts: [{ text: prompt }] }
+    ]
+  }
+
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': apiKey
+    },
+    body: JSON.stringify(body)
+  })
+
+  if (!r.ok) {
+    const txt = await r.text()
+    throw new Error(`Gemini request failed: ${r.status} ${txt}`)
+  }
+
+  const json = await r.json()
+
+  // Gemini response shape: candidates[0].content.parts[].text
+  const parts = json.candidates?.[0]?.content?.parts
+  if (Array.isArray(parts)) {
+    return parts.map(p => p.text || '').join('\n')
+  }
+  return JSON.stringify(json)
+}
+
+async function callAnthropic(prompt) {
   // Anthropic's current Messages API. Do NOT use the old /v1/complete
   // completions endpoint or "Authorization: Bearer" - that API is deprecated.
   const llmUrl = process.env.LLM_API_URL || 'https://api.anthropic.com/v1/messages'
